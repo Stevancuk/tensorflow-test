@@ -1,5 +1,7 @@
 import "./App.css";
 import { useEffect, useState } from "react";
+import tfvis from "@tensorflow/tfjs-vis";
+import * as tf from "@tensorflow/tfjs";
 
 export default function App() {
     const [data, setData] = useState(null);
@@ -18,6 +20,7 @@ export default function App() {
         };
         fetchData();
     });
+
     useEffect(() => {
         const getData = async () => {
             try {
@@ -40,6 +43,51 @@ export default function App() {
         };
         getData();
     }, []);
+
+    useEffect(() => {
+        const run = async () => {
+            // Load and plot the original input data that we are going to train on.
+            // const data = await getData();
+            const values = cars.map((d) => ({
+                x: d.horsepower,
+                y: d.mpg,
+            }));
+
+            tfvis.render.scatterplot(
+                { name: "Horsepower v MPG" },
+                { values },
+                {
+                    xLabel: "Horsepower",
+                    yLabel: "MPG",
+                    height: 300,
+                }
+            );
+
+            // More code will be added below
+        };
+        if (cars) {
+            console.log("cars", cars);
+            run();
+            const model = createModel();
+            tfvis.show.modelSummary({ name: "Model Summary" }, model);
+        }
+    }, [cars]);
+
+    function createModel() {
+        // Create a sequential model
+        const model = tf.sequential();
+
+        // Add a single input layer
+        model.add(
+            tf.layers.dense({ inputShape: [1], units: 1, useBias: true })
+        );
+
+        // Add an output layer
+        model.add(tf.layers.dense({ units: 1, useBias: true }));
+
+        return model;
+    }
+
     return (
         <div>
             <p>{data?.express_message}</p>
